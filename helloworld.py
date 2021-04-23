@@ -47,10 +47,10 @@ pygame.draw.ellipse(windowSurface, RED, (300, 250, 40, 80), 1)
 pygame.draw.rect(windowSurface, RED, (textRect.left - 20,
                  textRect.top - 20, textRect.width + 40, textRect.height + 40))
 
-# get a pixel array of the surface
-# pixArray = pygame.PixelArray(windowSurface)
-# pixArray[480][380] = BLACK
-# del pixArray
+#get a pixel array of the surface
+pixArray = pygame.PixelArray(windowSurface)
+pixArray[480][380] = BLACK
+del pixArray
 
 # draw the text onto the surface
 windowSurface.blit(text, textRect)
