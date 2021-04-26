@@ -1,5 +1,5 @@
 
-import pygame
+import pygame,sys
 
 #pygame必须的初始化工作
 pygame.init()
@@ -12,11 +12,13 @@ grid_size = cell_size * (cell_num - 1) + space * 2  # 棋盘大小
 #创建一个图形化用户界面（窗口）。坐标系统。像素。
 screen = pygame.display.set_mode((grid_size, grid_size))
 
+#定义一个列表，用于存储棋盘上的棋子
 chess_arr = []
 flag = 1  # 1为黑色，2为白色
 game_state = 1 # 游戏状态1.表示正常进行 2.表示黑胜 3.表示白胜
 
 def get_one_dire_num(lx, ly, dx, dy, m):
+    '''获取一个方向上棋子连续的个数'''
     tx = lx
     ty = ly
     s = 0
@@ -27,6 +29,7 @@ def get_one_dire_num(lx, ly, dx, dy, m):
         s+=1
 
 def check_win(chess_arr, flag):
+    '''判断胜负'''
     m = [[0]*cell_num for i in range(cell_num)] # 先定义一个15*15的全0的数组,不能用[[0]*cell_num]*cell_num的方式去定义因为一位数组会被重复引用
     for x, y, c in chess_arr:
         if c == flag:
@@ -35,6 +38,7 @@ def check_win(chess_arr, flag):
     ly = chess_arr[-1][1] # 最后一个子的y
     dire_arr = [[(-1,0),(1,0)],[(0,-1),(0,1)],[(-1,-1),(1,1)],[(-1,1),(1,-1)]] # 4个方向数组,往左＋往右、往上＋往下、往左上＋往右下、往左下＋往右上，4组判断方向
     
+    #遍历每个方向组，判断是否有连续5子。
     for dire1,dire2 in dire_arr:
         dx, dy = dire1
         num1 = get_one_dire_num(lx, ly, dx, dy, m)
@@ -45,21 +49,29 @@ def check_win(chess_arr, flag):
     return False
 
 while True:
+    #检索自从上次调用pygame.event.get()后所生成的任何新的Event对象
     for event in pygame.event.get():
+        #处理QUIT类型事件
         if event.type == pygame.QUIT:
-            exit()
+            pygame.quit()
+            sys.exit()
+        #处理鼠标弹起类型事件
         if game_state == 1 and event.type == pygame.MOUSEBUTTONUP:
+            #获取鼠标的位置
             x, y = pygame.mouse.get_pos()
+            #获取x，y方向上取整的序号
             xi = round((x-space)/cell_size)
             yi = round((y-space)/cell_size)
+            #判断落子是否在棋盘内，并且没有重复落子
             if xi >= 0 and xi < cell_num and yi >= 0 and yi < cell_num and (xi, yi, 1) not in chess_arr and (xi, yi, 2) not in chess_arr:
                 chess_arr.append((xi, yi, flag))
+                #判断输赢
                 if check_win(chess_arr,flag):
                     game_state = 2 if flag == 1 else 3
                 else:
                     flag = 2 if flag == 1 else 1
 
-    screen.fill((0, 0, 150))
+    screen.fill((0, 0, 150))# 将界面设置为蓝色
 
     for x in range(0, cell_size*cell_num, cell_size):
         pygame.draw.line(screen, (200, 200, 200), (x+space, 0+space),
@@ -83,4 +95,4 @@ while True:
 
     pygame.display.update()
 
-pygame.quit()
+
