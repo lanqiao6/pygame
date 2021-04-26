@@ -1,5 +1,5 @@
 
-import pygame,sys
+import pygame
 
 #pygame必须的初始化工作
 pygame.init()
@@ -38,7 +38,6 @@ def check_win(chess_arr, flag):
     ly = chess_arr[-1][1] # 最后一个子的y
     dire_arr = [[(-1,0),(1,0)],[(0,-1),(0,1)],[(-1,-1),(1,1)],[(-1,1),(1,-1)]] # 4个方向数组,往左＋往右、往上＋往下、往左上＋往右下、往左下＋往右上，4组判断方向
     
-    #遍历每个方向组，判断是否有连续5子。
     for dire1,dire2 in dire_arr:
         dx, dy = dire1
         num1 = get_one_dire_num(lx, ly, dx, dy, m)
@@ -49,31 +48,22 @@ def check_win(chess_arr, flag):
     return False
 
 while True:
-    #检索自从上次调用pygame.event.get()后所生成的任何新的Event对象
     for event in pygame.event.get():
-        #处理QUIT类型事件
         if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        #处理鼠标弹起类型事件
+            exit()
         if game_state == 1 and event.type == pygame.MOUSEBUTTONUP:
-            #获取鼠标的位置
             x, y = pygame.mouse.get_pos()
-            #获取x，y方向上取整的序号
             xi = round((x-space)/cell_size)
             yi = round((y-space)/cell_size)
-            #判断落子是否在棋盘内，并且没有重复落子
             if xi >= 0 and xi < cell_num and yi >= 0 and yi < cell_num and (xi, yi, 1) not in chess_arr and (xi, yi, 2) not in chess_arr:
                 chess_arr.append((xi, yi, flag))
-                #判断输赢
                 if check_win(chess_arr,flag):
                     game_state = 2 if flag == 1 else 3
                 else:
                     flag = 2 if flag == 1 else 1
 
-    screen.fill((0, 0, 150))# 将界面设置为蓝色
+    screen.fill((0, 0, 150))
 
-    #画棋盘
     for x in range(0, cell_size*cell_num, cell_size):
         pygame.draw.line(screen, (200, 200, 200), (x+space, 0+space),
                          (x+space, cell_size*(cell_num-1)+space), 1)
@@ -81,13 +71,13 @@ while True:
         pygame.draw.line(screen, (200, 200, 200), (0+space, y+space),
                          (cell_size*(cell_num-1)+space, y+space), 1)
 
-    #画棋子
     for x, y, f in chess_arr:
         chess_color = (30, 30, 30) if f == 1 else (200, 200, 200)
         pygame.draw.circle(screen, chess_color,
                            (x*cell_size+space, y*cell_size+space), 16, 16)
 
     if game_state != 1:
+
         #使用系统的默认字体，字体大小为60个点，
         myfont = pygame.font.Font(None,60)
         win_text = "%s win"%('black' if game_state == 2 else 'white')
@@ -96,4 +86,4 @@ while True:
 
     pygame.display.update()
 
-
+pygame.quit()
