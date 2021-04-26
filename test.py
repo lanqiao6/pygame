@@ -1,38 +1,86 @@
-def GetWeekWithDate(y, m, d):
-    y = y-1 if m == 1 or m == 2 else y
-    m = 13 if m == 1 else (14 if m == 2 else m)
-    w = (d+2*m+3*(m+1)//5+y+y//4-y//100+y//400) % 7+1
-    return w
 
-def IsLeepYear(y):
-    if y % 400 == 0 or (y % 4 == 0 and y % 100 != 0):
-        return True
+import pygame
+
+#pygame必须的初始化工作
+pygame.init()
+
+space = 60  # 四周留下的边距
+cell_size = 40  # 每个格子的大小
+cell_num = 15
+grid_size = cell_size * (cell_num - 1) + space * 2  # 棋盘大小
+
+#创建一个图形化用户界面（窗口）。坐标系统。像素。
+screen = pygame.display.set_mode((grid_size, grid_size))
+
+chess_arr = []
+flag = 1  # 1为黑色，2为白色
+game_state = 1 # 游戏状态1.表示正常进行 2.表示黑胜 3.表示白胜
+
+def get_one_dire_num(lx, ly, dx, dy, m):
+    tx = lx
+    ty = ly
+    s = 0
+    while True:
+        tx += dx
+        ty += dy
+        if tx < 0 or tx >= cell_num or ty < 0 or ty >= cell_num or m[ty][tx] == 0: return s
+        s+=1
+
+def check_win(chess_arr, flag):
+    m = [[0]*cell_num for i in range(cell_num)] # 先定义一个15*15的全0的数组,不能用[[0]*cell_num]*cell_num的方式去定义因为一位数组会被重复引用
+    for x, y, c in chess_arr:
+        if c == flag:
+            m[y][x] = 1 # 上面有棋则标1
+    lx = chess_arr[-1][0] # 最后一个子的x
+    ly = chess_arr[-1][1] # 最后一个子的y
+    dire_arr = [[(-1,0),(1,0)],[(0,-1),(0,1)],[(-1,-1),(1,1)],[(-1,1),(1,-1)]] # 4个方向数组,往左＋往右、往上＋往下、往左上＋往右下、往左下＋往右上，4组判断方向
+    
+    for dire1,dire2 in dire_arr:
+        dx, dy = dire1
+        num1 = get_one_dire_num(lx, ly, dx, dy, m)
+        dx, dy = dire2
+        num2 = get_one_dire_num(lx, ly, dx, dy, m)
+        if num1 + num2 + 1 >= 5: return True
+
     return False
 
-def GetDaysInMonth(y, m):
-    if m in [1, 3, 5, 7, 8, 10, 12]:
-        return 31
-    elif m in [4, 6, 9, 11]:
-        return 30
-    else:
-        return 29 if IsLeepYear(y) else 28
+while True:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            exit()
+        if game_state == 1 and event.type == pygame.MOUSEBUTTONUP:
+            x, y = pygame.mouse.get_pos()
+            xi = round((x-space)/cell_size)
+            yi = round((y-space)/cell_size)
+            if xi >= 0 and xi < cell_num and yi >= 0 and yi < cell_num and (xi, yi, 1) not in chess_arr and (xi, yi, 2) not in chess_arr:
+                chess_arr.append((xi, yi, flag))
+                if check_win(chess_arr,flag):
+                    game_state = 2 if flag == 1 else 3
+                else:
+                    flag = 2 if flag == 1 else 1
 
-year = int(input("请输入年份："))
-month = int(input("请输入月份："))
+    screen.fill((0, 0, 150))
 
-#year,month = 2019,2
+    for x in range(0, cell_size*cell_num, cell_size):
+        pygame.draw.line(screen, (200, 200, 200), (x+space, 0+space),
+                         (x+space, cell_size*(cell_num-1)+space), 1)
+    for y in range(0, cell_size*cell_num, cell_size):
+        pygame.draw.line(screen, (200, 200, 200), (0+space, y+space),
+                         (cell_size*(cell_num-1)+space, y+space), 1)
 
-days = GetDaysInMonth(year, month)
+    for x, y, f in chess_arr:
+        chess_color = (30, 30, 30) if f == 1 else (200, 200, 200)
+        pygame.draw.circle(screen, chess_color,
+                           (x*cell_size+space, y*cell_size+space), 16, 16)
 
-print("一 二 三 四 五 六 日")
-print("-"*20)
+    if game_state != 1:
 
-for i in range(1, days+1):
-    w = GetWeekWithDate(year, month, i)
-    if i == 1:
-        print(f"{' ' *(w-1)*3}", end="")
-    else:
-        if w == 1:
-            print("")
-    print(f"{i:2d}", end=" ")
-print("")
+        #使用系统的默认字体，字体大小为60个点，
+        myfont = pygame.font.Font(None,60)
+        win_text = "%s win"%('black' if game_state == 2 else 'white')
+        textImage = myfont.render(win_text,True,(210,210,0))
+        screen.blit(textImage,(260,320))
+
+    pygame.display.update()
+
+pygame.quit()
