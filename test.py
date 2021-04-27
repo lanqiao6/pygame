@@ -4,12 +4,15 @@ import pygame,sys
 #pygame必须的初始化工作
 pygame.init()
 
+black_color = (0,0,0)
+
 space = 60  # 四周留下的边距
 cell_size = 40  # 每个格子的大小
 cell_num = 15
 grid_size = cell_size * (cell_num - 1) + space * 2  # 棋盘大小
 
 #创建一个图形化用户界面（窗口）。坐标系统。像素。
+pygame.display.set_caption('五子棋')
 screen = pygame.display.set_mode((grid_size, grid_size))
 
 #定义一个列表，用于存储棋盘上的棋子
@@ -56,7 +59,8 @@ while True:
             pygame.quit()
             sys.exit()
         #处理鼠标弹起类型事件
-        if game_state == 1 and event.type == pygame.MOUSEBUTTONUP:
+        if game_state == 1 and event.type == pygame.MOUSEBUTTONUP and \
+                    event.button == 1:
             #获取鼠标的位置
             x, y = pygame.mouse.get_pos()
             #获取x，y方向上取整的序号
@@ -71,15 +75,23 @@ while True:
                 else:
                     flag = 2 if flag == 1 else 1
 
-    screen.fill((0, 0, 150))# 将界面设置为蓝色
+    screen.fill((125, 95, 24))# 设置界面颜色
 
     #画棋盘
+    pygame.draw.rect(screen, (0,0,0), [space-5, space-5, (cell_num-1)*cell_size+11, (cell_num-1)*cell_size+11], 3)
+    # 在棋盘上标出，天元以及另外4个特殊点位
+    pygame.draw.circle(screen, black_color, [space+cell_size*(cell_num-1)/2, space+cell_size*(cell_num-1)/2], 5, 0)
+    pygame.draw.circle(screen, black_color, [space+cell_size*3, space+cell_size*3], 3, 0)
+    pygame.draw.circle(screen, black_color, [space+cell_size*3, space+cell_size*(cell_num-4)], 3, 0)
+    pygame.draw.circle(screen, black_color, [space+cell_size*(cell_num-4), space+cell_size*3], 3, 0)
+    pygame.draw.circle(screen, black_color, [space+cell_size*(cell_num-4), space+cell_size*(cell_num-4)], 3, 0)
     for x in range(0, cell_size*cell_num, cell_size):
-        pygame.draw.line(screen, (200, 200, 200), (x+space, 0+space),
+        pygame.draw.line(screen, (0,0,0), (x+space, 0+space),
                          (x+space, cell_size*(cell_num-1)+space), 1)
     for y in range(0, cell_size*cell_num, cell_size):
-        pygame.draw.line(screen, (200, 200, 200), (0+space, y+space),
+        pygame.draw.line(screen, (0,0,0), (0+space, y+space),
                          (cell_size*(cell_num-1)+space, y+space), 1)
+    
 
     #画棋子
     for x, y, f in chess_arr:

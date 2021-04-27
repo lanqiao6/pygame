@@ -37,9 +37,8 @@ class RenjuBoard(object):
 
     def draw(self, screen):
         for h in range(1, 16):
-            pygame.draw.line(screen, black_color,
-                             [40, h * 40], [600, h * 40], 1)
-            pygame.draw.line(screen, black_color,
+            pygame.draw.line(screen, black_color,[40, h * 40], [600, h * 40], 1)
+            pygame.draw.line(screen, black_color,[h * 40, 40], [h * 40, 600], 1)
         # 给棋盘加一个外框，使美观
         pygame.draw.rect(screen, black_color, [36, 36, 568, 568], 3)
         # 在棋盘上标出，天元以及另外4个特殊点位
@@ -196,7 +195,7 @@ def main():
                     # 调用判断胜负函数
                     if not is_win(board):
                         # break
-                    running=False
+                        running=False
                     # 这里我有个bug没找到解决办法，就是判断出胜负后，使用break跳出事件遍历的for循环，但是老是不能跳出来，导致胜负分出来了还可以继续下，这里我采用判断胜负后就将running标签赋值为False，跳出主循环，但是这样棋盘的窗口也没了。明天再找找bug在哪
 
     pygame.quit()
