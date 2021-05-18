@@ -1,111 +1,32 @@
+from calendar_ex import clean
+import pygame
 
-import pygame,sys
-
-#pygame必须的初始化工作
 pygame.init()
 
-black_color = (0,0,0)
-
-space = 60  # 四周留下的边距
-cell_size = 40  # 每个格子的大小
+space = 60
 cell_num = 15
-grid_size = cell_size * (cell_num - 1) + space * 2  # 棋盘大小
+cell_size = 40
+grid_size = cell_size * (cell_num - 1) + space * 2
 
-#创建一个图形化用户界面（窗口）。坐标系统。像素。
-pygame.display.set_caption('五子棋')
-screen = pygame.display.set_mode((grid_size, grid_size))
+screen = pygame.display.set_mode((grid_size,grid_size))
 
-#定义一个列表，用于存储棋盘上的棋子
-chess_arr = []
-flag = 1  # 1为黑色，2为白色
-game_state = 1 # 游戏状态1.表示正常进行 2.表示黑胜 3.表示白胜
 
-def get_one_dire_num(lx, ly, dx, dy, m):
-    '''获取一个方向上棋子连续的个数'''
-    tx = lx
-    ty = ly
-    s = 0
-    while True:
-        tx += dx
-        ty += dy
-        if tx < 0 or tx >= cell_num or ty < 0 or ty >= cell_num or m[ty][tx] == 0: return s
-        s+=1
-
-def check_win(chess_arr, flag):
-    '''判断胜负'''
-    m = [[0]*cell_num for i in range(cell_num)] # 先定义一个15*15的全0的数组,不能用[[0]*cell_num]*cell_num的方式去定义因为一位数组会被重复引用
-    for x, y, c in chess_arr:
-        if c == flag:
-            m[y][x] = 1 # 上面有棋则标1
-    lx = chess_arr[-1][0] # 最后一个子的x
-    ly = chess_arr[-1][1] # 最后一个子的y
-    dire_arr = [[(-1,0),(1,0)],[(0,-1),(0,1)],[(-1,-1),(1,1)],[(-1,1),(1,-1)]] # 4个方向数组,往左＋往右、往上＋往下、往左上＋往右下、往左下＋往右上，4组判断方向
-    
-    #遍历每个方向组，判断是否有连续5子。
-    for dire1,dire2 in dire_arr:
-        dx, dy = dire1
-        num1 = get_one_dire_num(lx, ly, dx, dy, m)
-        dx, dy = dire2
-        num2 = get_one_dire_num(lx, ly, dx, dy, m)
-        if num1 + num2 + 1 >= 5: return True
-
-    return False
-
-while True:
-    #检索自从上次调用pygame.event.get()后所生成的任何新的Event对象
+is_exit = False
+while not is_exit:
     for event in pygame.event.get():
-        #处理QUIT类型事件
         if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        #处理鼠标弹起类型事件
-        if game_state == 1 and event.type == pygame.MOUSEBUTTONUP and \
-                    event.button == 1:
-            #获取鼠标的位置
-            x, y = pygame.mouse.get_pos()
-            #获取x，y方向上取整的序号
-            xi = round((x-space)/cell_size)
-            yi = round((y-space)/cell_size)
-            #判断落子是否在棋盘内，并且没有重复落子
-            if xi >= 0 and xi < cell_num and yi >= 0 and yi < cell_num and (xi, yi, 1) not in chess_arr and (xi, yi, 2) not in chess_arr:
-                chess_arr.append((xi, yi, flag))
-                #判断输赢
-                if check_win(chess_arr,flag):
-                    game_state = 2 if flag == 1 else 3
-                else:
-                    flag = 2 if flag == 1 else 1
+            is_exit = True
+    screen.fill((0,0,150))
 
-    screen.fill((125, 95, 24))# 设置界面颜色
-
-    #画棋盘
-    pygame.draw.rect(screen, (0,0,0), [space-5, space-5, (cell_num-1)*cell_size+11, (cell_num-1)*cell_size+11], 3)
-    # 在棋盘上标出，天元以及另外4个特殊点位
-    pygame.draw.circle(screen, black_color, [space+cell_size*(cell_num-1)/2, space+cell_size*(cell_num-1)/2], 5, 0)
-    pygame.draw.circle(screen, black_color, [space+cell_size*3, space+cell_size*3], 3, 0)
-    pygame.draw.circle(screen, black_color, [space+cell_size*3, space+cell_size*(cell_num-4)], 3, 0)
-    pygame.draw.circle(screen, black_color, [space+cell_size*(cell_num-4), space+cell_size*3], 3, 0)
-    pygame.draw.circle(screen, black_color, [space+cell_size*(cell_num-4), space+cell_size*(cell_num-4)], 3, 0)
-    for x in range(0, cell_size*cell_num, cell_size):
-        pygame.draw.line(screen, (0,0,0), (x+space, 0+space),
-                         (x+space, cell_size*(cell_num-1)+space), 1)
-    for y in range(0, cell_size*cell_num, cell_size):
-        pygame.draw.line(screen, (0,0,0), (0+space, y+space),
-                         (cell_size*(cell_num-1)+space, y+space), 1)
+    for x in range(0,15):
+        pygame.draw.line(screen,(255,255,255),(space+ x * cell_size,space),(space+ x * cell_size , (grid_size - space)),1)
+    for y in range(0,15):
+        pygame.draw.line(screen,(255,255,255),(space,(space + y * cell_size)),((grid_size-space),(space+ y * cell_size)),1)
     
+    pygame.display.flip()
 
-    #画棋子
-    for x, y, f in chess_arr:
-        chess_color = (30, 30, 30) if f == 1 else (200, 200, 200)
-        pygame.draw.circle(screen, chess_color,
-                           (x*cell_size+space, y*cell_size+space), 16, 16)
+pygame.quit()
 
-    if game_state != 1:
-        #使用系统的默认字体，字体大小为60个点，
-        myfont = pygame.font.Font(None,60)
-        win_text = "%s win"%('black' if game_state == 2 else 'white')
-        textImage = myfont.render(win_text,True,(210,210,0))
-        screen.blit(textImage,(260,320))
 
-    pygame.display.update()
 
 
