@@ -24,7 +24,7 @@ def get_one_dire_num(m,lx,ly,dire):
     while True:
         tx += dx
         ty += dy
-        if m[tx][ty] == 0 or tx<0 or tx>=cell_num or ty<0 or ty>=cell_num:
+        if tx<0 or tx>=cell_num or ty<0 or ty>=cell_num or  m[tx][ty] == 0:
             return n
         n+=1
 
