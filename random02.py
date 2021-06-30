@@ -36,9 +36,13 @@ print(''.center(57,'*'))
 
 #2、开始猜测，猜测大小，判断输赢，显示现有金币
 while True:
+    ##提示开始猜测
     print('开始猜大小'.center(52,'-'))
+    ##获取电脑随机结构，big or small
     pc_size = 'big' if pc_round()>=10 else 'small'
+    ##用户猜测
     user_size = input('请输入big or small：')
+    ##判断输赢，显示现有金币
     if pc_size == user_size:
         print('您赢了！')
         user_info['gold'] += 100
@@ -46,6 +50,7 @@ while True:
         print('您输了！')
         user_info['gold'] -= 100
     print('您现有金币：{}'.format(user_info['gold']))
+    ##如果金币小于或等于0，退出游戏
     if user_info['gold']<=0:
         print('您的金币已经用完，感谢您的使用')
         break
